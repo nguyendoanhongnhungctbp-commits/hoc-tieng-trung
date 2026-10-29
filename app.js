@@ -55,15 +55,27 @@ function listen(cb) {
   if (!window.isSecureContext) return cb(null, "insecure");
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) return cb(null, "unsupported");
-  const r = new SR();
-  r.lang = "zh-CN"; r.maxAlternatives = 3;
-  r.onresult = (e) => cb([...e.results[0]].map((a) => a.transcript));
-  r.onerror = (e) => cb(null, e.error);
-  r.onnomatch = () => cb(null, "no-speech");
-  r.start();
+  try { window.speechSynthesis && speechSynthesis.cancel(); } catch (e) {}   // loa đang đọc sẽ làm micro bị ngắt (aborted)
+  try { listen.cur && listen.cur.abort(); } catch (e) {}
+  const run = (tries) => {
+    const r = new SR(); listen.cur = r; let done = false, got = false;
+    const fin = (alts, err) => { if (done) return; done = true; if (listen.cur === r) listen.cur = null; cb(alts, err); };
+    r.lang = "zh-CN"; r.maxAlternatives = 3; r.interimResults = false; r.continuous = false;
+    r.onresult = (e) => { got = true; fin([...e.results[0]].map((a) => a.transcript)); };
+    r.onerror = (e) => {
+      if (e.error === "aborted" && tries > 0 && !got) { done = true; return setTimeout(() => run(tries - 1), 350); }   // thử lại 1 lần
+      fin(null, e.error);
+    };
+    r.onnomatch = () => fin(null, "no-speech");
+    r.onend = () => fin(null, "no-speech");
+    try { r.start(); } catch (e) { fin(null, "aborted"); }
+  };
+  setTimeout(() => run(1), 250);
 }
 // Ghi âm dự phòng: khi máy không có nhận diện giọng nói, ghi lại giọng bạn để nghe so với mẫu
-const HELP = (err) => /^language/.test(err || "")
+const HELP = (err) => err === "aborted"
+  ? "Trình duyệt trên máy này chưa cho nhận diện giọng nói liên tục (mã aborted). Tạm thời app ghi âm để bạn nghe lại so với mẫu."
+  : /^language/.test(err || "")
   ? `Chưa chấm điểm được (mã ${err}): máy chưa có gói tiếng Trung cho nhận diện giọng nói. Vào Cài đặt → Ngôn ngữ & nhập liệu → Nhập liệu bằng giọng nói của Google → Ngôn ngữ → tải 中文. Tạm thời app ghi âm để bạn nghe lại.`
   : `Chưa chấm điểm được (mã ${err || "?"}): máy cần ứng dụng Google và "Dịch vụ giọng nói của Google" được bật. Tạm thời app ghi âm để bạn nghe lại.`;
 const REC = {
@@ -136,7 +148,7 @@ function bindPractice(root) {
       listen((alts, err) => {
         rb.classList.remove("on");
         if (!alts) {
-          const retry = ["unsupported", "network"].includes(err) || /^(error|language|server|client)/.test(err || "");
+          const retry = ["unsupported", "network", "aborted", "audio-capture", "service-not-allowed"].includes(err) || /^(error|language|server|client)/.test(err || "");
           if (retry) return recordMode(HELP(err));
           res.style.color = "#c32b2b";
           res.textContent = ERR[err] || "Không nhận diện được (" + (err || "?") + "), thử lại."; return;
