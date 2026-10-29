@@ -283,7 +283,7 @@ function render() {
 }
 function shell(inner) {
   app.innerHTML = `
-    <div class="topbar"><span>🇨🇳 学中文</span>
+    <div class="topbar"><span>🇨🇳 Chào Gấm !</span>
       <span class="stat"><span>🔥 ${S.streak}</span><span>⭐ ${S.xp} XP</span></span></div>
     ${inner}
     <nav class="tabs">
