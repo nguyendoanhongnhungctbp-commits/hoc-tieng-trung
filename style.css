@@ -485,7 +485,8 @@ body::before { left: 0; right: 0; top: 0; bottom: 0; width: auto; transform: non
 }
 
 /* Thanh trạng thái / vùng an toàn: nền phủ kín, không còn dải màu riêng ở trên dưới */
-html, body { background-color: #efe5cd; }
+html { background-color: #efe5cd; }
+body { background: transparent; }   /* để ảnh nền (body::before) hiện lên */
 @media (display-mode: standalone) {
   html::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top, 0px); z-index: 300; pointer-events: none;
     background: linear-gradient(rgba(96, 108, 140, .55), rgba(96, 108, 140, 0)); }   /* làm chữ trắng của thanh trạng thái iPhone dễ đọc trên nền kem */
