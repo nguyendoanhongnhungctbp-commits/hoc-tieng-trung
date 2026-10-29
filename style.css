@@ -493,3 +493,8 @@ body { background: transparent; }   /* để ảnh nền (body::before) hiện l
 }
 
 .stat .upd small { font-size: .78em; font-weight: 700; opacity: .6; margin-left: 2px; }
+
+/* Thanh tiến độ bài học: thụt xuống để khỏi sát mép trên / camera (máy tính bảng 100px) */
+.lesson-top { padding-top: calc(56px + env(safe-area-inset-top, 0px)); }
+@media (min-width: 700px) and (min-height: 600px) { .lesson-top { padding-top: calc(100px + env(safe-area-inset-top, 0px)); } }
+@media (orientation: landscape) and (max-height: 520px) { .lesson-top { padding-top: max(14px, env(safe-area-inset-top, 0px)); } }

@@ -4,7 +4,7 @@ const shuffle = (a) => [...a].sort(() => Math.random() - 0.5);
 const pick = (a, n) => shuffle(a).slice(0, n);
 
 // ---------- Trạng thái (lưu localStorage) ----------
-const APP_VERSION = "1.6.1";   // tăng mỗi lần có tính năng mới (1.x.0) hoặc sửa lỗi (1.6.x); hiện cạnh nút Cập nhật
+const APP_VERSION = "1.7.0";   // tăng mỗi lần có tính năng mới (1.x.0) hoặc sửa lỗi (1.6.x); hiện cạnh nút Cập nhật
 const KEY = "chinese-app-v1";
 let S = { xp: 0, streak: 0, lastDay: "", done: {}, showPinyin: true, learned: {}, cards: {}, talk: {} };
 try { Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
