@@ -1,6 +1,6 @@
-const CACHE = "hoc-trung-v24";
+const CACHE = "hoc-trung-v25";
 const CORE = ["./", "index.html", "style.css", "app.js", "data.js", "dialogues.js", "examples.js", "wordimg.js", "strokes.js", "hanzi-writer.min.js", "manifest.json",
-  "bg.webp", "icon-192.png", "icon-512.png", "icon-180.png", "fonts/nunito-latin.woff2", "fonts/nunito-latin-ext.woff2", "fonts/nunito-vietnamese.woff2"];
+  "bg.webp", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "icon-180.png", "fonts/nunito-latin.woff2", "fonts/nunito-latin-ext.woff2", "fonts/nunito-vietnamese.woff2"];
 self.addEventListener("install", (e) => { e.waitUntil(caches.open(CACHE).then((c) => Promise.all(CORE.map((u) => c.add(u).catch(() => {}))))); self.skipWaiting(); });
 self.addEventListener("activate", (e) => e.waitUntil(caches.keys().then((ks) => Promise.all(ks.filter((k) => k !== CACHE).map((k) => caches.delete(k)))).then(() => self.clients.claim())));
 self.addEventListener("fetch", (e) => {
