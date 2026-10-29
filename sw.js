@@ -1,4 +1,4 @@
-const CACHE = "hoc-trung-v30";
+const CACHE = "hoc-trung-v31";
 const CORE = ["./", "index.html", "style.css", "app.js", "data.js", "dialogues.js", "examples.js", "wordimg.js", "strokes.js", "hanzi-writer.min.js", "manifest.json",
   "bg.webp", "icon-192.png", "icon-512.png", "icon-maskable-512.png", "icon-180.png", "fonts/nunito-latin.woff2", "fonts/nunito-latin-ext.woff2", "fonts/nunito-vietnamese.woff2"];
 self.addEventListener("install", (e) => { e.waitUntil(caches.open(CACHE).then((c) => Promise.all(CORE.map((u) => c.add(u).catch(() => {}))))); self.skipWaiting(); });
