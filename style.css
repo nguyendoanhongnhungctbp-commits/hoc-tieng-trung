@@ -429,3 +429,9 @@ html, body, button, input, select, textarea { font-family: var(--font); }
 .topbar { padding-top: max(12px, env(safe-area-inset-top, 0px)); }
 html { -webkit-text-size-adjust: 100%; }
 button { -webkit-appearance: none; appearance: none; }
+
+/* nút Cập nhật (xoá bộ nhớ đệm + tải lại) */
+.stat { align-items: center; gap: 8px; }
+.stat .upd { background: var(--card-bg, #fff); color: var(--green-d); border: 0; border-radius: 999px; padding: 5px 12px; font-size: 14px; font-weight: 800; cursor: pointer; box-shadow: none; white-space: nowrap; }
+.stat .upd:active { transform: scale(.96); }
+@media (max-width: 380px) { .stat { gap: 5px; } .stat span, .stat .upd { padding: 5px 9px; font-size: 13px; } }

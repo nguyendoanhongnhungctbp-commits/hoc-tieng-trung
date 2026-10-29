@@ -284,13 +284,21 @@ function render() {
 function shell(inner) {
   app.innerHTML = `
     <div class="topbar"><span>🇨🇳 Chào Gấm !</span>
-      <span class="stat"><span>🔥 ${S.streak}</span><span>⭐ ${S.xp} XP</span></span></div>
+      <span class="stat"><button class="upd" id="upd" type="button">🔄 Cập nhật</button><span>🔥 ${S.streak}</span><span>⭐ ${S.xp} XP</span></span></div>
     ${inner}
     <nav class="tabs">
       ${[["learn", "📚 Học"], ["listen", "🎧 Nghe"], ["review", "🃏 Ôn tập"], ["words", "📖 Từ vựng"], ["set", "⚙️ Cài đặt"]]
         .map(([k, l]) => `<button data-tab="${k}" class="${tab === k ? "on" : ""}">${l}</button>`).join("")}
     </nav>`;
   app.querySelectorAll("[data-tab]").forEach((b) => (b.onclick = () => { tab = b.dataset.tab; render(); }));
+  const upd = document.getElementById("upd");
+  if (upd) upd.onclick = async () => {
+    upd.textContent = "⏳ Đang tải…"; upd.disabled = true;
+    try { if (navigator.serviceWorker) (await navigator.serviceWorker.getRegistrations()).forEach((r) => r.unregister()); } catch (e) {}
+    try { if (window.caches) (await caches.keys()).forEach((k) => caches.delete(k)); } catch (e) {}
+    const u = new URL(location.href); u.searchParams.set("v", Date.now());
+    location.replace(u.toString());
+  };
 }
 function home() {
   const total = LESSONS.length, done = LESSONS.filter((l) => S.done[lessonKey(l)]).length;
