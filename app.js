@@ -82,7 +82,7 @@ const REC = {
   on: false, chunks: [], mr: null, url: null,
   async start() {
     if (window.AndroidRec) { AndroidRec.start(); this.on = true; return; }
-    const st = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const st = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true } });
     this.chunks = []; this.mr = new MediaRecorder(st);
     this.mr.ondataavailable = (e) => this.chunks.push(e.data);
     this.mr.onstop = () => { st.getTracks().forEach((t) => t.stop()); this.blob = new Blob(this.chunks, { type: this.mr.mimeType || "" }); this.url = URL.createObjectURL(this.blob); this.ready && this.ready(); };
@@ -170,7 +170,7 @@ function bindPractice(root) {
               res.textContent = `⬇️ Đang tải mô hình AI (chỉ lần đầu) ${Math.round((100 * l) / t)}%`;
             } else if (p.status === "ready") res.textContent = "⏳ Đang chấm điểm…";
           });
-          if (!han(simp(txt))) { res.style.color = "#c32b2b"; res.textContent = "🤔 Không nghe rõ giọng nói, hãy thử lại."; return; }
+          if (!han(simp(txt))) { res.style.color = "#c32b2b"; res.textContent = "🤔 Không nghe thấy giọng nói. Hãy đưa máy gần miệng hơn, đọc to rõ rồi bấm ■."; return; }
           showScore(res, zh, [txt]);
         } catch (e) {
           res.style.color = "#c32b2b";
@@ -180,6 +180,7 @@ function bindPractice(root) {
     };
     const aiStart = async () => {
       ai = true; res.style.color = "";
+      try { window.speechSynthesis && speechSynthesis.cancel(); } catch (e) {}   // tắt giọng mẫu để micro không thu phải
       res.innerHTML = `🔴 Đang nghe... đọc to rồi bấm ${ICON.stop} để chấm điểm`;
       rb.classList.add("on"); rb.innerHTML = ICON.stop;
       try { await REC.start(); }
