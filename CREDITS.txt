@@ -1,0 +1,4 @@
+Luyện nét viết dùng:
+- Hanzi Writer (hanzi-writer.min.js) – giấy phép MIT – https://hanziwriter.org
+- Dữ liệu nét chữ (strokes.js) lấy từ hanzi-writer-data, bắt nguồn từ dự án Make Me a Hanzi
+  (đồ họa font: Arphic Public License; dữ liệu: LGPL) – https://github.com/skishore/makemeahanzi
