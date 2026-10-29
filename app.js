@@ -4,7 +4,7 @@ const shuffle = (a) => [...a].sort(() => Math.random() - 0.5);
 const pick = (a, n) => shuffle(a).slice(0, n);
 
 // ---------- Trạng thái (lưu localStorage) ----------
-const APP_VERSION = "1.8.1";   // tăng mỗi lần có tính năng mới (1.x.0) hoặc sửa lỗi (1.6.x); hiện cạnh nút Cập nhật
+const APP_VERSION = "1.8.2";   // tăng mỗi lần có tính năng mới (1.x.0) hoặc sửa lỗi (1.6.x); hiện cạnh nút Cập nhật
 const KEY = "chinese-app-v1";
 let S = { xp: 0, streak: 0, lastDay: "", done: {}, showPinyin: true, learned: {}, cards: {}, talk: {} };
 try { Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
@@ -813,7 +813,8 @@ function wordList() {
 function settings() {
   shell(`<h2>Cài đặt</h2>
     <label class="toggle"><span>Hiện pinyin</span><input type="checkbox" id="py" ${S.showPinyin ? "checked" : ""}></label>
-    <div style="margin-top:24px"><button class="btn no" id="reset">Xóa tiến độ</button></div>`);
+    <div style="margin-top:24px"><button class="btn no" id="reset">Xóa tiến độ</button></div>
+    <p class="devinfo">Phiên bản v${APP_VERSION} · màn hình ${innerWidth}×${innerHeight} · mật độ ${devicePixelRatio} · ${matchMedia("(display-mode: fullscreen)").matches ? "toàn màn hình" : matchMedia("(display-mode: standalone)").matches ? "app đã cài" : "trình duyệt"}</p>`);
   $("#py").onchange = (e) => { S.showPinyin = e.target.checked; save(); };
   $("#reset").onclick = () => { if (confirm("Xóa toàn bộ tiến độ?")) { localStorage.removeItem(KEY); location.reload(); } };
 }

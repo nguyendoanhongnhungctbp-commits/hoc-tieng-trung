@@ -465,7 +465,7 @@ body::before { left: 0; right: 0; top: 0; bottom: 0; width: auto; transform: non
   .learn { padding-bottom: 110px; }
 }
 /* Máy tính bảng (OPPO Pad Mini 8.8", dọc & ngang): phóng giao diện lên cho dễ nhìn, dễ chạm */
-@media (min-width: 700px) and (min-height: 600px) { html { zoom: 1.2; } :root { --col: 560px; } }
+@media (min-width: 600px) and (min-height: 600px) { html { zoom: 1.2; } :root { --col: 560px; } }
 @media (min-width: 1000px) and (min-height: 600px) { html { zoom: 1.3; } :root { --col: 600px; } }
 /* iPhone ngang: thẻ học chia 2 cột (ảnh bên trái, chữ bên phải) để không bị thanh dưới che */
 @media (orientation: landscape) and (max-height: 520px) {
@@ -496,11 +496,11 @@ body { background: transparent; }   /* để ảnh nền (body::before) hiện l
 
 /* Thanh tiến độ bài học: thụt xuống để khỏi sát mép trên / camera (máy tính bảng 100px) */
 .lesson-top { padding-top: calc(56px + env(safe-area-inset-top, 0px)); }
-@media (min-width: 700px) and (min-height: 600px) { .lesson-top { padding-top: calc(100px + env(safe-area-inset-top, 0px)); } }
+@media (min-width: 600px) and (min-height: 600px) { .lesson-top { padding-top: calc(100px + env(safe-area-inset-top, 0px)); } }
 @media (orientation: landscape) and (max-height: 520px) { .lesson-top { padding-top: max(14px, env(safe-area-inset-top, 0px)); } }
 
 /* ===== Thanh bài học: kính mờ, thanh tiến độ gradient, nút quay lại to ===== */
-.lesson-top { display: flex; align-items: center; gap: 12px; margin: calc(56px + env(safe-area-inset-top, 0px)) 0 8px; padding: 10px 12px;
+.lesson-top { display: flex; align-items: center; gap: 12px; margin: calc(20px + env(safe-area-inset-top, 0px)) 0 8px; padding: 10px 12px;
   background: linear-gradient(135deg, rgba(255, 253, 247, .86), rgba(244, 240, 255, .78)); border: 1px solid rgba(255, 255, 255, .8); border-radius: 30px;
   box-shadow: 0 10px 28px rgba(120, 110, 160, .16), inset 0 1px 0 rgba(255, 255, 255, .9); -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); }
 .lesson-top .x { flex: none; display: grid; place-items: center; width: 52px; height: 52px; padding: 0; border: 0; border-radius: 50%; cursor: pointer; font-size: 19px; font-weight: 800;
@@ -517,9 +517,11 @@ body { background: transparent; }   /* để ảnh nền (body::before) hiện l
   background: radial-gradient(circle at 35% 30%, #fff 0 30%, #f6c1d8 70%); box-shadow: 0 3px 10px rgba(242, 169, 200, .6); }
 .lesson-top .bar i[style*="width:0%"]::after { display: none; }
 .lesson-top .hearts { flex: none; padding: 8px 13px; border-radius: 999px; font-size: 16px; font-weight: 800; color: #d9577d; background: linear-gradient(160deg, #fff, #fff0f5); box-shadow: 0 4px 12px rgba(242, 140, 170, .25); }
-@media (min-width: 700px) and (min-height: 600px) { .lesson-top { margin-top: calc(50px + env(safe-area-inset-top, 0px)); } }
+@media (min-width: 600px) and (min-height: 600px) { .lesson-top { margin-top: calc(16px + env(safe-area-inset-top, 0px)); } }
 @media (orientation: landscape) and (max-height: 520px) {
   .lesson-top { margin-top: max(8px, env(safe-area-inset-top, 0px)); padding: 6px 10px; border-radius: 24px; }
   .lesson-top .x, .lesson-top .back { width: 46px; height: 46px; }
 }
 @media (max-width: 380px) { .lesson-top { gap: 9px; padding: 8px 9px; } .lesson-top .back { width: 50px; height: 50px; } .lesson-top .pinyin-toggle { width: 42px; height: 42px; } }
+
+.devinfo { margin-top: 22px; text-align: center; font-size: 12px; color: #8a8a9a; opacity: .8; }
