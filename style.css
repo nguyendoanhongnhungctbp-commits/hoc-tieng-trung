@@ -517,7 +517,7 @@ body { background: transparent; }   /* để ảnh nền (body::before) hiện l
   background: radial-gradient(circle at 35% 30%, #fff 0 30%, #f6c1d8 70%); box-shadow: 0 3px 10px rgba(242, 169, 200, .6); }
 .lesson-top .bar i[style*="width:0%"]::after { display: none; }
 .lesson-top .hearts { flex: none; padding: 8px 13px; border-radius: 999px; font-size: 16px; font-weight: 800; color: #d9577d; background: linear-gradient(160deg, #fff, #fff0f5); box-shadow: 0 4px 12px rgba(242, 140, 170, .25); }
-@media (min-width: 700px) and (min-height: 600px) { .lesson-top { margin-top: calc(100px + env(safe-area-inset-top, 0px)); } }
+@media (min-width: 700px) and (min-height: 600px) { .lesson-top { margin-top: calc(50px + env(safe-area-inset-top, 0px)); } }
 @media (orientation: landscape) and (max-height: 520px) {
   .lesson-top { margin-top: max(8px, env(safe-area-inset-top, 0px)); padding: 6px 10px; border-radius: 24px; }
   .lesson-top .x, .lesson-top .back { width: 46px; height: 46px; }
