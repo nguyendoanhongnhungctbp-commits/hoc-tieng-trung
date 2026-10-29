@@ -4,7 +4,7 @@ const shuffle = (a) => [...a].sort(() => Math.random() - 0.5);
 const pick = (a, n) => shuffle(a).slice(0, n);
 
 // ---------- Trạng thái (lưu localStorage) ----------
-const APP_VERSION = "1.7.0";   // tăng mỗi lần có tính năng mới (1.x.0) hoặc sửa lỗi (1.6.x); hiện cạnh nút Cập nhật
+const APP_VERSION = "1.8.0";   // tăng mỗi lần có tính năng mới (1.x.0) hoặc sửa lỗi (1.6.x); hiện cạnh nút Cập nhật
 const KEY = "chinese-app-v1";
 let S = { xp: 0, streak: 0, lastDay: "", done: {}, showPinyin: true, learned: {}, cards: {}, talk: {} };
 try { Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
@@ -413,9 +413,10 @@ function startLesson(u) {
 }
 function topBar() {
   const n = L.ex.length;
-  return `<div class="lesson-top"><button class="x" id="quit">✕</button>
-    <div class="bar"><i style="width:${(L.i / n) * 100}%"></i></div>
-    <button class="x" id="pytog" title="Bật/tắt pinyin">拼</button><b>❤️ ${L.hearts}</b></div>`;
+  return `<div class="lesson-top"><button class="x back" id="quit" aria-label="Thoát bài học" title="Thoát bài học">
+      <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-width="2.7" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+    <div class="bar" aria-label="Tiến độ"><i style="width:${(L.i / n) * 100}%"></i></div>
+    <button class="x pinyin-toggle" id="pytog" title="Bật/tắt pinyin">拼</button><b class="hearts">❤️ ${L.hearts}</b></div>`;
 }
 function bindTop() {
   $("#quit").onclick = () => { if (confirm("Thoát bài học?")) render(); };
