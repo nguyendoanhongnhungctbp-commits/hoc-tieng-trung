@@ -85,7 +85,7 @@ const REC = {
     const st = await navigator.mediaDevices.getUserMedia({ audio: true });
     this.chunks = []; this.mr = new MediaRecorder(st);
     this.mr.ondataavailable = (e) => this.chunks.push(e.data);
-    this.mr.onstop = () => { st.getTracks().forEach((t) => t.stop()); this.url = URL.createObjectURL(new Blob(this.chunks)); this.ready && this.ready(); };
+    this.mr.onstop = () => { st.getTracks().forEach((t) => t.stop()); this.blob = new Blob(this.chunks, { type: this.mr.mimeType || "" }); this.url = URL.createObjectURL(this.blob); this.ready && this.ready(); };
     this.mr.start(); this.on = true;
   },
   stop(ready) {
@@ -97,8 +97,21 @@ const REC = {
   },
 };
 const han = (t) => t.replace(/[^\u4e00-\u9fff]/g, "");
+// Mô hình AI hay trả chữ phồn thể (買, 錢...): đổi về giản thể trước khi so với câu mẫu
+const T2S = (() => { const p = "裡里後后髮发幹干乾干隻只麵面瞭了係系繫系臺台檯台颱台製制準准鬆松鬥斗鬱郁籲吁著着佈布衹只萬万業业東东丟丢兩两嚴严個个為为麗丽麼么買买亂乱虧亏雲云產产從从們们價价優优會会傘伞傳传傷伤體体償偿兒儿兌兑關关興兴衝冲況况淨净涼凉幾几剛刚別别剎刹辦办務务動动醫医單单賣卖臥卧衛卫廳厅歷历厲厉廁厕廚厨參参雙双發发變变號号後后嗎吗聽听員员餵喂園园國国圖图場场壞坏塊块牆墙處处備备夠够頭头媽妈嬰婴學学寶宝實实宮宫賓宾對对導导嘗尝幣币師师帶带幫帮乾干廣广開开異异張张彎弯當当錄录戶户掃扫拋抛搶抢護护報报擔担掛挂擋挡損损換换據据攤摊舊旧時时曬晒暈晕暫暂機机條条來来櫃柜樣样橋桥檢检樓楼歡欢氣气匯汇湯汤沒没潔洁塗涂溫温濕湿滿满滅灭燈灯靈灵災灾點点煙烟煩烦燒烧熱热狀状現现電电盜盗著着碼码禮礼離离積积稱称竊窃築筑簽签緊紧紅红紀纪紙纸經经結结給给絡络統统續续維维綠绿網网罰罚聯联髒脏膩腻節节蘋苹薦荐藥药營营補补裝装見见觀观視视訂订讓让記记講讲設设證证詐诈訴诉診诊譯译試试話话誤误說说請请調调謝谢負负責责賬账貨货質质貴贵費费賠赔蹤踪車车轉转輪轮輛辆輸输邊边過过運运還还這这進进遠远違违連连遲迟適适鄰邻採采針针鈔钞鐘钟鑰钥錢钱鐵铁銀银鎖锁錯错錨锚鏡镜長长門门閃闪問问間间隊队陽阳陰阴際际險险難难霧雾靜静預预題题顏颜風风飛飞飯饭飲饮餃饺餓饿館馆馬马駕驾騎骑騙骗魚鱼鮮鲜雞鸡齊齐"; const m = {}; for (let i = 0; i < p.length; i += 2) m[p[i]] = p[i + 1]; return m; })();
+const simp = (t) => t.replace(/[一-鿿]/g, (c) => T2S[c] || c);
+let sttMod = null, aiDeclined = false;
+const sttLoad = () => sttMod || (sttMod = import("./stt.js").catch((e) => { sttMod = null; throw e; }));
+function showScore(res, zh, alts) {
+  const sc = Math.max(...alts.map((a) => similarity(zh, a)));
+  const pct = Math.round(sc * 100);
+  const msg = pct >= 95 ? ["🌟 Tuyệt vời! Phát âm chuẩn", "#3c8a00"]
+    : pct >= 60 ? ["👍 Gần đúng, cố thêm chút nữa", "#c78a00"] : ["❌ Chưa đúng, nghe mẫu rồi thử lại", "#c32b2b"];
+  res.style.color = msg[1];
+  res.innerHTML = `${msg[0]} <span class="score">(${pct}%)</span><br><span class="score">Máy nghe được: ${alts[0]}</span>`;
+}
 function similarity(target, heard) {      // LCS / độ dài câu mẫu
-  const a = han(target), b = han(heard);
+  const a = han(simp(target)), b = han(simp(heard));
   if (!a.length) return 0;
   const dp = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
   for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
@@ -141,24 +154,57 @@ function bindPractice(root) {
         }
       } catch (err) { REC.on = false; if (!window.isSecureContext && !window.AndroidRec) { res.style.color = "#c32b2b"; res.textContent = ERR.insecure; rb.classList.remove("on"); rb.innerHTML = ICON.mic; return; } rb.classList.remove("on"); rb.innerHTML = ICON.mic; res.style.color = "#c32b2b"; res.textContent = ERR.denied; }
     };
+    let ai = false, aiTimer = null;
+    const aiReset = () => { clearTimeout(aiTimer); rb.classList.remove("on"); rb.innerHTML = ICON.mic; };
+    const aiStop = () => {
+      ai = false; aiReset();
+      REC.stop(async () => {
+        res.style.color = ""; res.textContent = "⏳ Đang chấm điểm…";
+        const files = {};
+        try {
+          const m = await sttLoad();
+          const txt = await m.transcribe(REC.blob, (p) => {
+            if (p.status === "progress" && p.total) {
+              files[p.file] = [p.loaded, p.total]; const a = Object.values(files);
+              const l = a.reduce((x, y) => x + y[0], 0), t = a.reduce((x, y) => x + y[1], 0);
+              res.textContent = `⬇️ Đang tải mô hình AI (chỉ lần đầu) ${Math.round((100 * l) / t)}%`;
+            } else if (p.status === "ready") res.textContent = "⏳ Đang chấm điểm…";
+          });
+          if (!han(simp(txt))) { res.style.color = "#c32b2b"; res.textContent = "🤔 Không nghe rõ giọng nói, hãy thử lại."; return; }
+          showScore(res, zh, [txt]);
+        } catch (e) {
+          res.style.color = "#c32b2b";
+          res.textContent = "Không tải được mô hình AI (lần đầu cần có mạng). Kiểm tra mạng rồi thử lại.";
+        }
+      });
+    };
+    const aiStart = async () => {
+      ai = true; res.style.color = "";
+      res.innerHTML = `🔴 Đang nghe... đọc to rồi bấm ${ICON.stop} để chấm điểm`;
+      rb.classList.add("on"); rb.innerHTML = ICON.stop;
+      try { await REC.start(); }
+      catch (e) { ai = false; REC.on = false; aiReset(); res.style.color = "#c32b2b"; res.textContent = ERR.denied; return; }
+      aiTimer = setTimeout(() => REC.on && aiStop(), 9000);
+    };
+    const offerAI = (err) => {
+      if (window.AndroidSpeech || aiDeclined || !window.MediaRecorder) return recordMode(HELP(err));
+      if (confirm("Trình duyệt trên máy này chưa hỗ trợ chấm phát âm trực tiếp.\n\nBạn có muốn tải mô hình AI (khoảng 77 MB, chỉ tải một lần, nên dùng Wi-Fi) để chấm điểm ngay trên máy không?")) { S.aiStt = true; save(); return aiStart(); }
+      aiDeclined = true; recordMode(HELP(err));
+    };
     rb.onclick = (ev) => {
       ev.stopPropagation();
-      if (REC.on) return recordMode();
+      if (REC.on) return ai ? aiStop() : recordMode();
+      if (S.aiStt === true && !window.AndroidSpeech) return aiStart();
       rb.classList.add("on"); res.style.color = ""; res.textContent = "🎙️ Đang nghe... hãy đọc to";
       listen((alts, err) => {
         rb.classList.remove("on");
         if (!alts) {
           const retry = ["unsupported", "network", "aborted", "audio-capture", "service-not-allowed"].includes(err) || /^(error|language|server|client)/.test(err || "");
-          if (retry) return recordMode(HELP(err));
+          if (retry) return offerAI(err);
           res.style.color = "#c32b2b";
           res.textContent = ERR[err] || "Không nhận diện được (" + (err || "?") + "), thử lại."; return;
         }
-        const sc = Math.max(...alts.map((a) => similarity(zh, a)));
-        const pct = Math.round(sc * 100);
-        const msg = pct >= 95 ? ["🌟 Tuyệt vời! Phát âm chuẩn", "#3c8a00"]
-          : pct >= 60 ? ["👍 Gần đúng, cố thêm chút nữa", "#c78a00"] : ["❌ Chưa đúng, nghe mẫu rồi thử lại", "#c32b2b"];
-        res.style.color = msg[1];
-        res.innerHTML = `${msg[0]} <span class="score">(${pct}%)</span><br><span class="score">Máy nghe được: ${alts[0]}</span>`;
+        showScore(res, zh, alts);
       });
     };
   });
@@ -307,7 +353,7 @@ function shell(inner) {
   if (upd) upd.onclick = async () => {
     upd.textContent = "⏳ Đang tải…"; upd.disabled = true;
     try { if (navigator.serviceWorker) (await navigator.serviceWorker.getRegistrations()).forEach((r) => r.unregister()); } catch (e) {}
-    try { if (window.caches) (await caches.keys()).forEach((k) => caches.delete(k)); } catch (e) {}
+    try { if (window.caches) (await caches.keys()).filter((k) => k.startsWith("hoc-trung-")).forEach((k) => caches.delete(k)); } catch (e) {}
     const u = new URL(location.href); u.searchParams.set("v", Date.now());
     location.replace(u.toString());
   };
@@ -776,6 +822,6 @@ if ("serviceWorker" in navigator) {
   if (location.protocol === "https:") navigator.serviceWorker.register("sw.js");
   else {            // chạy trong mạng nhà (http): không lưu đệm, luôn lấy bản mới
     navigator.serviceWorker.getRegistrations().then((rs) => rs.forEach((r) => r.unregister())).catch(() => {});
-    if (window.caches) caches.keys().then((ks) => ks.forEach((k) => caches.delete(k))).catch(() => {});
+    if (window.caches) caches.keys().then((ks) => ks.filter((k) => k.startsWith("hoc-trung-")).forEach((k) => caches.delete(k))).catch(() => {});
   }
 }
