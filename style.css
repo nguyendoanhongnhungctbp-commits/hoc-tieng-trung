@@ -490,3 +490,5 @@ html, body { background-color: #efe5cd; }
   html::before { content: ""; position: fixed; top: 0; left: 0; right: 0; height: env(safe-area-inset-top, 0px); z-index: 300; pointer-events: none;
     background: linear-gradient(rgba(96, 108, 140, .55), rgba(96, 108, 140, 0)); }   /* làm chữ trắng của thanh trạng thái iPhone dễ đọc trên nền kem */
 }
+
+.stat .upd small { font-size: .78em; font-weight: 700; opacity: .6; margin-left: 2px; }

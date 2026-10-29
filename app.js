@@ -4,6 +4,7 @@ const shuffle = (a) => [...a].sort(() => Math.random() - 0.5);
 const pick = (a, n) => shuffle(a).slice(0, n);
 
 // ---------- Trạng thái (lưu localStorage) ----------
+const APP_VERSION = "1.6.0";   // tăng mỗi lần có tính năng mới (1.x.0) hoặc sửa lỗi (1.6.x); hiện cạnh nút Cập nhật
 const KEY = "chinese-app-v1";
 let S = { xp: 0, streak: 0, lastDay: "", done: {}, showPinyin: true, learned: {}, cards: {}, talk: {} };
 try { Object.assign(S, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
@@ -343,7 +344,7 @@ function render() {
 function shell(inner) {
   app.innerHTML = `
     <div class="topbar"><span>🇨🇳 Chào Gấm !</span>
-      <span class="stat"><button class="upd" id="upd" type="button">🔄 Cập nhật</button><span>🔥 ${S.streak}</span><span>⭐ ${S.xp} XP</span></span></div>
+      <span class="stat"><button class="upd" id="upd" type="button">🔄 Cập nhật <small>v${APP_VERSION}</small></button><span>🔥 ${S.streak}</span><span>⭐ ${S.xp} XP</span></span></div>
     ${inner}
     <nav class="tabs">
       ${[["learn", "📚 Học"], ["listen", "🎧 Nghe"], ["review", "🃏 Ôn tập"], ["words", "📖 Từ vựng"], ["set", "⚙️ Cài đặt"]]
